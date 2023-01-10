@@ -1,7 +1,7 @@
 import mindspore as ms
 from vit import ViT
 from mindspore.train.callback import LossMonitor, TimeMonitor, CheckpointConfig, ModelCheckpoint
-from mindspore import nn, context
+from mindspore import nn
 from loss import CrossEntropySmooth
 from dataset import get_dataset
 
@@ -33,16 +33,16 @@ if __name__ == '__main__' :
     ms.set_context(mode=ms.GRAPH_MODE,device_target="Ascend")
     train_data, val_data = get_dataset()
 
+    epoch_size = 5
+    momentum = 0.9
+    num_classes = 10
+    step_size = train_data.get_dataset_size()
+
     network = ViT()
     vit_path = "./ckpt/vit_b_16_224.ckpt"
     param_dict = ms.load_checkpoint(vit_path)
     ms.load_param_into_net(network, param_dict)
-    network.dense = nn.Dense(768, 54)
-
-    epoch_size = 10
-    momentum = 0.9
-    num_classes = 54
-    step_size = train_data.get_dataset_size()
+    network.dense = nn.Dense(768, num_classes)
 
     lr = nn.cosine_decay_lr(min_lr=float(0),
                         max_lr=0.00005,
@@ -52,14 +52,14 @@ if __name__ == '__main__' :
     network_opt = nn.Adam(network.trainable_params(), lr, momentum)
     network_loss = CrossEntropySmooth(sparse=True,
                                     reduction="mean",
-                                    smooth_factor=0.1,
+                                    smooth_factor=0.0,
                                     num_classes=num_classes)
 
     loss_net = CustomWithLossCell(network, network_loss)
     eval_net = CustomWithEvalCell(network)
     
     ckpt_config = CheckpointConfig(save_checkpoint_steps=step_size, keep_checkpoint_max=100)
-    ckpt_callback = ModelCheckpoint(prefix='vit_b_16', directory='./ViT1', config=ckpt_config)
+    ckpt_callback = ModelCheckpoint(prefix='vit_b_16', directory='./ViT_food2', config=ckpt_config)
     ascend_target = (ms.get_context("device_target") == "Ascend")
     if ascend_target:
         model = ms.Model(loss_net, optimizer=network_opt, eval_network=eval_net, metrics={"acc"}, amp_level="O2")

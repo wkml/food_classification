@@ -2,10 +2,8 @@ import mindspore.dataset as ds
 import mindspore.dataset.vision.c_transforms as vision
 
 def get_dataset():
-    image_folder_dataset_dir = "./data/train"
-    mapping = {}
-    for i in range(54):
-        mapping[str(i)] = int(i)
+    image_folder_dataset_dir = "./food_classification/train/"
+    mapping = {"冰激凌":0, "鸡蛋布丁":1, "烤冷面":2, "芒果班戟":3, "三明治":4, "松鼠鱼":5, "甜甜圈":6, "土豆泥":7, "小米粥":8, "玉米饼":9}
 
     mean = [0.485 * 255, 0.456 * 255, 0.406 * 255]
     std = [0.229 * 255, 0.224 * 255, 0.225 * 255]

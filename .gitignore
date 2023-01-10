@@ -1,0 +1,15 @@
+.ipynb_checkpoints
+__pycache__
+.lsp_symlink
+.Trash-1000
+.virtual_documents
+.vscode-server
+ckpt
+data
+kernel_meta
+rank_0
+train_data
+mindcon_xian
+ViT
+ViT1
+food_classification.zip
